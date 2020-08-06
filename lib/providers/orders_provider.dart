@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shop_app_flutter/providers/cart_provider.dart';
 
 class OrderItem {

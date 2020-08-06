@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app_flutter/screens/orders_screen.dart';
 import './providers/orders_provider.dart';
 import './screens/cart_screen.dart';
 import './providers/cart_provider.dart';
@@ -30,8 +31,10 @@ class MyApp extends StatelessWidget {
           textTheme: GoogleFonts.latoTextTheme(),
         ),
         routes: {
+          ProductOverviewScreen.routeName: (context) => ProductOverviewScreen(),
           ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
           CartScreen.routeName: (context) => CartScreen(),
+          OrdersScreen.routeName: (context) => OrdersScreen(),
         },
       ),
     );

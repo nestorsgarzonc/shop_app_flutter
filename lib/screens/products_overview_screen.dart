@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../widgets/app_drawer.dart';
 import '../providers/cart_provider.dart';
 import '../providers/products_provider.dart';
 import './cart_screen.dart';
@@ -9,11 +10,13 @@ import '../widgets/products_grid.dart';
 enum FilterOptions { Favorites, All }
 
 class ProductOverviewScreen extends StatelessWidget {
+  static const routeName = 'product_overview';
   @override
   Widget build(BuildContext context) {
     final providerProducts = Provider.of<ProductProvider>(context, listen: false);
     final providerCart = Provider.of<CartProvider>(context);
     return Scaffold(
+      drawer: AppDrawer(),
       appBar: AppBar(
         title: Text('NW shop'),
         centerTitle: true,
