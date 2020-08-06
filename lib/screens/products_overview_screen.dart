@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app_flutter/providers/cart_provider.dart';
-import 'package:shop_app_flutter/providers/products_provider.dart';
-import 'package:shop_app_flutter/widgets/badge.dart';
+import '../providers/cart_provider.dart';
+import '../providers/products_provider.dart';
+import './cart_screen.dart';
+import '../widgets/badge.dart';
 import '../widgets/products_grid.dart';
 
 enum FilterOptions { Favorites, All }
@@ -43,7 +44,7 @@ class ProductOverviewScreen extends StatelessWidget {
             value: '${providerCart.itemCount}',
             child: IconButton(
               icon: Icon(Icons.shopping_cart),
-              onPressed: () {},
+              onPressed: () => Navigator.of(context).pushNamed(CartScreen.routeName),
             ),
           )
         ],
