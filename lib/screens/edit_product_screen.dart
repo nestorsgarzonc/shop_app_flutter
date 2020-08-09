@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app_flutter/providers/products_provider.dart';
 import '../providers/product_model.dart';
 
 class EditProductScreen extends StatefulWidget {
@@ -15,10 +17,36 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   var _editedProduct = Product(id: null, description: '', imageUrl: ' ', price: 0, title: '');
+  var isInit = true;
+  var _initValues = {
+    'title': '',
+    'description': '',
+    'price': '',
+    'imageUrl': '',
+  };
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImage);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (isInit) {
+      final String productId = ModalRoute.of(context).settings.arguments;
+      if (productId != null) {
+        _editedProduct = Provider.of<ProductProvider>(context, listen: false).findById(productId);
+        _initValues = {
+          'title': _editedProduct.title,
+          'description': _editedProduct.description,
+          'price': _editedProduct.price.toString(),
+          'imageUrl': _editedProduct.imageUrl,
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+    isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -27,6 +55,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     _descriptionFocusNode.dispose();
     _imageUrlController.dispose();
     _imageUrlFocusNode.dispose();
+
     _imageUrlFocusNode.removeListener(_updateImage);
     super.dispose();
   }
@@ -37,16 +66,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
-    _formKey.currentState.save();
-    print(_editedProduct.id);
-    print(_editedProduct.title);
-    print(_editedProduct.description);
-    print(_editedProduct.imageUrl);
-  }
-
   @override
   Widget build(BuildContext context) {
+    void _saveForm() {
+      final isValid = _formKey.currentState.validate();
+      final prov = Provider.of<ProductProvider>(context, listen: false);
+      if (!isValid) {
+        return;
+      }
+      if (_editedProduct.id != null) {
+      } else {}
+      _formKey.currentState.save();
+      prov.addProduct(_editedProduct);
+      Navigator.of(context).pop();
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit product'),
@@ -57,17 +91,27 @@ class _EditProductScreenState extends State<EditProductScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
+          autovalidate: true,
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _initValues['title'],
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(labelText: 'Title'),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Provide a value';
+                  } else {
+                    return null;
+                  }
+                },
                 onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_priceFocusNode),
                 onChanged: (value) => _editedProduct = Product(
                   id: _editedProduct.id,
                   description: _editedProduct.description,
                   imageUrl: _editedProduct.imageUrl,
+                  isFavorite: _editedProduct.isFavorite,
                   price: _editedProduct.price,
                   title: value,
                 ),
@@ -76,7 +120,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_descriptionFocusNode),
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
+                initialValue: _initValues['price'],
                 decoration: InputDecoration(labelText: 'Price'),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Provide a price';
+                  } else if (double.tryParse(value) < 0) {
+                    return 'Price is greater than zero';
+                  } else if (double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  } else {
+                    return null;
+                  }
+                },
                 focusNode: _priceFocusNode,
                 onChanged: (value) => _editedProduct = Product(
                   id: _editedProduct.id,
@@ -89,8 +145,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
               TextFormField(
                 onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_imageUrlFocusNode),
                 keyboardType: TextInputType.multiline,
+                initialValue: _initValues['description'],
                 decoration: InputDecoration(labelText: 'Description'),
                 maxLines: 3,
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Enter a description';
+                  } else if (value.length < 10) {
+                    return 'Should be grater than 10 caracters';
+                  } else {
+                    return null;
+                  }
+                },
                 focusNode: _descriptionFocusNode,
                 onChanged: (value) => _editedProduct = Product(
                   id: _editedProduct.id,
@@ -98,6 +164,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   imageUrl: _editedProduct.imageUrl,
                   price: _editedProduct.price,
                   title: _editedProduct.title,
+                  isFavorite: _editedProduct.isFavorite,
                 ),
               ),
               Row(
@@ -121,7 +188,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       controller: _imageUrlController,
                       decoration: InputDecoration(labelText: 'Image URL'),
                       keyboardType: TextInputType.url,
+                      //initialValue: _initValues['imageUrl'],
                       textInputAction: TextInputAction.done,
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Enter a image URL';
+                        } else if (!value.startsWith('http') && !value.startsWith('https')) {
+                          return 'Invalid url';
+                        } else {
+                          return null;
+                        }
+                      },
                       onFieldSubmitted: (value) => _saveForm(),
                       onChanged: (value) => _editedProduct = Product(
                         id: _editedProduct.id,
@@ -129,6 +206,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         imageUrl: value,
                         price: _editedProduct.price,
                         title: _editedProduct.title,
+                        isFavorite: _editedProduct.isFavorite,
                       ),
                     ),
                   ),
