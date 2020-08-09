@@ -29,7 +29,7 @@ class Badge extends StatelessWidget {
               style: TextStyle(fontSize: 10),
             ),
           ),
-        )
+        ),
       ],
     );
   }

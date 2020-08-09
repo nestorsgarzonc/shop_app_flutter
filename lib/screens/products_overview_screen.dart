@@ -9,8 +9,20 @@ import '../widgets/products_grid.dart';
 
 enum FilterOptions { Favorites, All }
 
-class ProductOverviewScreen extends StatelessWidget {
+class ProductOverviewScreen extends StatefulWidget {
   static const routeName = 'product_overview';
+
+  @override
+  _ProductOverviewScreenState createState() => _ProductOverviewScreenState();
+}
+
+class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
+  @override
+  void initState() {
+    Provider.of<ProductProvider>(context, listen: false).fetchAndSetProducts();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final providerProducts = Provider.of<ProductProvider>(context, listen: false);
