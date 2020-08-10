@@ -1,56 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/cart_provider.dart';
 
-class CartItemWidget extends StatelessWidget {
+import '../providers/cart.dart';
+
+class CartItem extends StatelessWidget {
   final String id;
   final String productId;
   final double price;
-  final String title;
   final int quantity;
+  final String title;
 
-  const CartItemWidget({
-    @required this.id,
-    @required this.price,
-    @required this.title,
-    @required this.quantity,
-    @required this.productId,
-  });
+  CartItem(
+    this.id,
+    this.productId,
+    this.price,
+    this.quantity,
+    this.title,
+  );
+
   @override
   Widget build(BuildContext context) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
     return Dismissible(
-      confirmDismiss: (direction) => showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Are you sure?'),
-          content: Text('Do you want to remove the item from the cart?'),
-          actions: [
-            FlatButton(child: Text('No'), onPressed: () => Navigator.of(context).pop(false)),
-            FlatButton(child: Text('Yes'), onPressed: () =>Navigator.of(context).pop(true)),
-          ],
+      key: ValueKey(id),
+      background: Container(
+        color: Theme.of(context).errorColor,
+        child: Icon(
+          Icons.delete,
+          color: Colors.white,
+          size: 40,
+        ),
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: 20),
+        margin: EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 4,
         ),
       ),
-      key: ValueKey(id),
-      onDismissed: (direction) => cartProvider.removeItem(productId),
-      background: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        alignment: Alignment.centerRight,
-        color: Theme.of(context).errorColor,
-        child: Icon(Icons.delete),
-      ),
       direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: Text('Are you sure?'),
+                content: Text(
+                  'Do you want to remove the item from the cart?',
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text('No'),
+                    onPressed: () {
+                      Navigator.of(ctx).pop(false);
+                    },
+                  ),
+                  FlatButton(
+                    child: Text('Yes'),
+                    onPressed: () {
+                      Navigator.of(ctx).pop(true);
+                    },
+                  ),
+                ],
+              ),
+        );
+      },
+      onDismissed: (direction) {
+        Provider.of<Cart>(context, listen: false).removeItem(productId);
+      },
       child: Card(
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+        margin: EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 4,
+        ),
         child: Padding(
           padding: EdgeInsets.all(8),
           child: ListTile(
             leading: CircleAvatar(
-              child: FittedBox(child: Text('\$$price')),
-              radius: 25,
+              child: Padding(
+                padding: EdgeInsets.all(5),
+                child: FittedBox(
+                  child: Text('\$$price'),
+                ),
+              ),
             ),
             title: Text(title),
-            subtitle: Text('Total: \$${price * quantity}'),
+            subtitle: Text('Total: \$${(price * quantity)}'),
             trailing: Text('$quantity x'),
           ),
         ),
