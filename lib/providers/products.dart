@@ -6,9 +6,10 @@ import './product.dart';
 
 class Products with ChangeNotifier {
   final String authToken;
+  final String userId;
   List<Product> _items = [];
 
-  Products(this.authToken, this._items);
+  Products(this.authToken, this.userId, this._items);
 
   List<Product> get items {
     return [..._items];
