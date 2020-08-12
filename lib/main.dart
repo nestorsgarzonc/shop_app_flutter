@@ -42,7 +42,14 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'Material App',
             debugShowCheckedModeBanner: false,
-            home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (context, state) => state.connectionState == ConnectionState.waiting
+                        ? Center(child: CircularProgressIndicator())
+                        : AuthScreen(),
+                  ),
             theme: ThemeData(
               primaryColor: Colors.grey,
               accentColor: Colors.deepOrange,
