@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shop_app_flutter/auth_key.dart';
 import 'package:shop_app_flutter/models/http_exception.dart';
 
 class Auth with ChangeNotifier {
@@ -10,7 +11,7 @@ class Auth with ChangeNotifier {
   DateTime _expiryDate;
   String _userId;
   Timer _authTimer;
-  static const _key = 'AIzaSyDADZH0BLG_fkV9PJsIvVyEVTbAoiWeReY';
+  String _key = AuthKey.getKey;
 
   bool get isAuth {
     return token != null;
